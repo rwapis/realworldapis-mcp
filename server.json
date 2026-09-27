@@ -2,16 +2,16 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "com.realworldapis/realworldapis",
   "title": "RealWorldAPIs",
-  "description": "Find and rank 100 audited APIs for weather, geospatial, IoT, robotics, mobility and logistics.",
+  "description": "Evidence-first registry of real-world APIs for AI agents, with verified metadata for task-based discovery, structured search, record inspection and deterministic comparison.",
   "repository": {
     "url": "https://github.com/rwapis/realworldapis-mcp",
     "source": "github"
   },
-  "version": "1.2.1",
+  "version": "3.0.1",
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://realworldapis-api.realworldapis.workers.dev/mcp"
+      "url": "https://mcp.realworldapis.com/mcp"
     }
   ]
 }
