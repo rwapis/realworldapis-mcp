@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "com.realworldapis/realworldapis",
   "title": "RealWorldAPIs",
-  "description": "Evidence-first registry of real-world APIs for AI agents, with verified metadata for task-based discovery, structured search, record inspection and deterministic comparison.",
+  "description": "Evidence-first registry of real-world APIs for AI agents, with verified metadata and comparison.",
   "repository": {
     "url": "https://github.com/rwapis/realworldapis-mcp",
     "source": "github"
