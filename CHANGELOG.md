@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.0.2 — proposed metadata publication, unreleased
+
+- Align public descriptions with Discover → Verify → Plan and the owner-confirmed hosted v3.5.2 seven-tool service.
+- Document structured planning with `compose_workflow`, Unknown handoffs and no execution.
+- Stage Registry manifest 3.0.2 for a separately authorized owner publication; no runtime, historical v3.0.1 source or rights changes.
+- See [publication plan](docs/PUBLICATION.md); this entry is not a tag, hosted deployment or published Registry release.
+
 ## 3.0.1 — 2026-09-27
 
 ### Tool metadata and schema quality

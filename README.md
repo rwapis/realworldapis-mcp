@@ -1,10 +1,16 @@
 # RealWorldAPIs MCP
 
-**RealWorldAPIs is an evidence-first API registry for AI agents connecting to the physical world.**
+**Discover, verify and plan real-world API capabilities for AI agents.**
+
+RealWorldAPIs is an evidence-first discovery, verification and workflow-planning layer for AI agents interacting with the physical world.
+
+Discover → Verify → Plan → Review evidence / integrate independently.
+
+Plans do not call provider APIs, guarantee interoperability or authorize physical-world execution. Unknown remains Unknown.
 
 A real-world API connects software or AI agents to data, devices, infrastructure or services representing the physical world — including weather, maps, mobility, logistics, IoT, energy and robotics.
 
-This repository documents and provides a publicly inspectable MCP interface implementation for [RealWorldAPIs](https://realworldapis.com).
+This public, source-visible repository documents the hosted [RealWorldAPIs](https://realworldapis.com) interface. It is not open source. `src/worker.js` is the historical v3.0.1 four-tool interface snapshot, not the serving v3.5.2 Worker; it is unchanged by this documentation update.
 
 The **live hosted RealWorldAPIs service is the source of truth** for current tools, schemas, recommendation behavior and evidence semantics. The hosted service may evolve independently from the code visible in this repository.
 
@@ -61,16 +67,17 @@ No RealWorldAPIs API key is currently required to discover or call the public MC
 
 ## MCP tools
 
-The live RealWorldAPIs MCP service currently exposes six read-only tools:
+The owner confirmed hosted MCP **v3.5.2** and seven read-only tools on **2026-11-13**, including successful direct Inspector calls to `compose_workflow` ([acceptance evidence](https://github.com/rwapis/rwapis_optimizer/issues/108)). Discover the current contract with live `tools/list`; catalog snapshot dates are separate from the runtime and Registry manifest versions.
 
 | Tool | Purpose |
 | --- | --- |
-| `find_api_for_task` | Natural-language API selection using the canonical hosted recommender, followed by constrained comparison over returned candidates. |
-| `search_apis` | Deterministic search and filtering over canonical API fields. |
-| `search_capabilities` | Search the verified capability graph directly. |
-| `verify_requirement` | Evidence-backed YES / NO / PARTIAL / UNKNOWN verification of one API against a specific requirement. |
-| `get_api` | Retrieve one canonical API decision profile by slug or name. |
-| `compare_apis` | Deterministic side-by-side comparison of canonical fields. |
+| `find_api_for_task` | Find an API shortlist for a task; optional AI comparison stays within the canonical shortlist. |
+| `search_apis` | Search and filter the canonical API catalog. |
+| `search_capabilities` | Discover published Verified/High capabilities, constraints and evidence. |
+| `verify_requirement` | Check one API against one requirement with evidence-backed YES, NO, PARTIAL or UNKNOWN results. |
+| `get_api` | Read an API decision profile, capabilities, access requirements and evidence. |
+| `compare_apis` | Compare known APIs using canonical catalog fields and capability evidence. |
+| `compose_workflow` | Plan 1–8 agent-supplied structured steps with API candidates, explicit Unknowns, handoffs and bounded alternatives; no AI step drafting or provider execution. |
 
 The live tool set and schemas are authoritative. The source-visible implementation in this repository may lag the hosted service.
 
@@ -84,6 +91,7 @@ The live tool set and schemas are authoritative. The source-visible implementati
 | Evidence-backed adjudication of an exact API requirement | `verify_requirement` |
 | The canonical record for one already-known API | `get_api` |
 | A field-by-field comparison of already-known candidates | `compare_apis` |
+| An advisory plan for 1–8 structured steps supplied by your agent | `compose_workflow` |
 
 ### `find_api_for_task`
 
@@ -136,7 +144,7 @@ Example:
 }
 ```
 
-The verifier returns an evidence-backed `YES`, `NO`, `PARTIAL` or `UNKNOWN` result. `Unknown` is never silently promoted into support.
+The verifier returns an evidence-backed `YES`, `NO`, `PARTIAL` or `UNKNOWN` result. A verdict is not execution permission; `Unknown` is never silently promoted into support.
 
 ### `get_api`
 
@@ -170,6 +178,71 @@ Example:
 ```
 
 The comparison is deterministic. RealWorldAPIs does not infer missing support or silently replace `Unknown` with a guess.
+
+### `compose_workflow`
+
+compose_workflow accepts 1–8 agent-supplied structured steps and returns planning-only API candidates, evidence, explicit Unknowns, handoffs and bounded alternatives. It does not draft steps with AI, implement processing or execute provider operations.
+
+Website Composer can propose a task decomposition from a natural-language goal. MCP `compose_workflow` instead requires an agent-supplied structured workflow; it does not independently draft arbitrary steps with AI.
+
+Call the tool with these arguments (a plan with unresolved external inputs, not a provider request):
+
+```json
+{
+  "workflow": {
+    "schema_version": "rwapis-composer-workflow-v1",
+    "goal": "Geocode a street address in Stockholm, then use the coordinates to calculate a driving route to Gothenburg. Do not execute any APIs.",
+    "steps": [
+      {
+        "id": "geocode",
+        "query": "Geocode a street address in Stockholm",
+        "inputs": [
+          {
+            "name": "street_address",
+            "type": "Unknown"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "coordinates",
+            "type": "Unknown"
+          }
+        ]
+      },
+      {
+        "id": "route",
+        "query": "Calculate a driving route from the returned coordinates to Gothenburg. Do not execute any APIs.",
+        "inputs": [
+          {
+            "name": "origin",
+            "type": "Unknown",
+            "from": "geocode",
+            "output": "coordinates"
+          },
+          {
+            "name": "destination",
+            "type": "Unknown"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "driving_route",
+            "type": "Unknown"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The response uses `schema_version: rwapis-composer-dynamic-v1` and includes `workflow`, `steps`, `handoffs` and `workflow_options`, with `planning_only: true` and `execution_authorized: false`. Candidates, alternatives and partial/unsupported requirements must be reviewed, not assumed.
+
+A geocoding → routing dependency can remain `needs_io_evidence`: documented operations do not prove provider I/O compatibility. Unknown dependencies, geographic eligibility, licensing, access, hardware, approval and physical-consequence constraints remain unresolved unless explicitly evidenced. The supplied original goal and prohibitions must be retained.
+
+Plans do not call provider APIs, guarantee interoperability or authorize physical-world execution. Unknown remains Unknown.
+
+RWAPIS does not provide durable execution, retries, webhook orchestration, Async recipes, Arazzo exports or production-ready state machines. Review evidence and integrate independently.
 
 ## Connect
 
@@ -277,6 +350,7 @@ MCP client
    +-- search_apis ---------------> canonical API catalog
    +-- get_api -------------------> canonical API decision profile
    +-- compare_apis --------------> canonical evidence fields
+   +-- compose_workflow ----------> canonical planning-only Composer
 ```
 
 This avoids maintaining a second independent recommendation, ranking or evidence system inside the public MCP interface.
@@ -289,7 +363,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for additional public interface
 
 ```text
 src/
-  worker.js               Publicly inspectable MCP interface implementation
+  worker.js               Historical v3.0.1 four-tool interface snapshot
 
 examples/
   requests.md             Example tool calls and expected semantics
@@ -297,6 +371,7 @@ examples/
 docs/
   ARCHITECTURE.md         Public data flow, grounding and failure behavior
   DATA_MODEL.md           Important catalog fields and evidence semantics
+  PUBLICATION.md          Owner-only metadata release and listing checks
 
 CHANGELOG.md               Release history
 CONTRIBUTING.md            Contribution and correction workflow
@@ -305,7 +380,7 @@ PROPRIETARY_NOTICE.md      Repository rights and proprietary-service boundary
 
 ## Status
 
-The hosted RealWorldAPIs service evolves independently from this public repository.
+Hosted runtime **v3.5.2**, historical source **v3.0.1**, and proposed Registry manifest **3.0.2** are separate identities. The manifest update is prepared for review, not published. See [publication plan](docs/PUBLICATION.md).
 
 For current production behavior, use the live MCP endpoint and canonical website endpoints. Third-party directories and this repository may temporarily show an older tool count, description, implementation detail or schema after a production deployment.
 

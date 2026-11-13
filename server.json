@@ -2,12 +2,12 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "com.realworldapis/realworldapis",
   "title": "RealWorldAPIs",
-  "description": "Evidence-first registry of real-world APIs for AI agents, with verified metadata and comparison.",
+  "description": "Evidence-first discovery, verification and workflow planning for real-world APIs and AI agents.",
   "repository": {
     "url": "https://github.com/rwapis/realworldapis-mcp",
     "source": "github"
   },
-  "version": "3.0.1",
+  "version": "3.0.2",
   "remotes": [
     {
       "type": "streamable-http",
